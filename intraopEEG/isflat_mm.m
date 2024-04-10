@@ -1,8 +1,20 @@
 function out_flag = isflat_mm(data, window)
 % if data in any channel is flat, data is marked 
-% data is of size channel X time X number of epochs 
-% window is in length of samples 
+% 
+% Inputs:
+%   data:   EEG data with size (channel X time X number of epochs)
+%   window: length of the samples to check for consistency 
+%
+% Output:
+%   out_flag: marked data 
+% ------------------------------------------------------------------------
+% This function is part of the intraopEEGtoolbox: 
+% https://github.com/mahtamsv/intraopEEGtoolbox
+%
+% Author: Mahta Mousavi, 2024 
+% ------------------------------------------------------------------------
 
+% flags are initialized to zero for all epochs 
 out_flag = zeros(size(data,3),1);
 
 for idx = 1:size(data,3)
