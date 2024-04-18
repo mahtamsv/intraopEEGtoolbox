@@ -3,6 +3,8 @@ import scipy as sp
 import numpy as np
 import mne_connectivity
 import mne
+import mne_features
+
 
 def estimate_spectrum(data_in, srate):
     """
@@ -84,7 +86,7 @@ def extract_power_features(data_in, srate):
 def extract_connectivity_features(data_epochs, srate):
     """
     Extract connectivity features
-    :param EEG_in: EEG time series (channel x time samples x number of epochs)
+    :param data_epochs: EEG time series (channel x time samples x number of epochs)
     :param srate: sampling rate
     :return:
     """
@@ -142,4 +144,40 @@ def extract_connectivity_features(data_epochs, srate):
     # average over non-zero values
     AA_c = np.mean(res_m[np.tril_indices(4, k=-1)])
     return rCOH, iCOH, PPC, AA_c
+
+
+def extract_complexity_features(data_epochs, srate):
+    """
+    Estimate complexity measures
+    :param data_epochs: EEG time series (channel x time samples x number of epochs)
+    :param srate: sampling rate
+    :return:
+    """
+
+    [m, n, p] = np.shape(data_epochs)
+    # explicit reshaping
+    data_epochs_r = np.zeros([p, m, n])
+    for ij in range(p):
+        data_epochs_r[ij, :, :] = data_epochs[:, :, ij]
+
+    print(np.shape(data_epochs_r))
+
+    # estimate complexity
+    HD = np.zeros([p, 4])
+    AE = np.zeros([p, 4])
+    SE = np.zeros([p, 4])
+    HC = np.zeros([p, 4])
+    for ij in range(p):
+        temp = data_epochs_r[ij, :, :]
+        HD[ij, :] = mne_features.univariate.compute_higuchi_fd(temp, kmax=10)
+        AE[ij, :] = mne_features.univariate.compute_app_entropy(temp, emb=2, metric='chebyshev')
+        SE[ij, :] = mne_features.univariate.compute_spect_entropy(srate, temp, psd_method='welch', psd_params=None)
+        HC[ij, :] = mne_features.univariate.compute_hjorth_complexity(temp)
+
+    HD = np.mean(HD)
+    SE = np.mean(SE)
+    AE = np.mean(AE)
+    HC = np.mean(HC)
+
+    return HD, SE, AE, HC
 
