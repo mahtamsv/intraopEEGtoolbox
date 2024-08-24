@@ -27,7 +27,7 @@ def estimate_spectrum(data_in, srate):
 
     # FOOOF
     # Initialize a FOOOF object
-    fm = FOOOF(peak_width_limits=[1, 5], max_n_peaks=2)
+    fm = FOOOF(peak_width_limits=[1, 5], max_n_peaks=1)
     fm.print_settings(description=True)
 
     # note that the data should be in linear spacing
